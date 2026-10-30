@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mechanics Phenomena Visualized | Bowen Zhang</title>
+  <meta name="description" content="An interactive gravity sandbox: launch planets, tune G and cosmic expansion, and watch bodies merge." />
+  <style>
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      background: #020305;
+      color: #dfeaf5;
+      font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    /* ===== Title bar ===== */
+    .title-bar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 58px;
+      padding: 0 20px;
+      background: linear-gradient(180deg, #060b12 0%, #04070b 100%);
+      border-bottom: 1px solid rgba(92, 220, 255, 0.16);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 -1px 0 rgba(92, 220, 255, 0.06);
+      position: relative;
+      z-index: 2;
+    }
+
+    .title-bar h1 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+      font-size: 0.96rem;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: #eaf7ff;
+      text-shadow: 0 0 18px rgba(92, 220, 255, 0.5);
+      white-space: nowrap;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #59e1ff;
+      box-shadow: 0 0 10px #59e1ff;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; box-shadow: 0 0 6px rgba(89, 225, 255, 0.45); }
+      50% { opacity: 1; box-shadow: 0 0 16px rgba(89, 225, 255, 1); }
+    }
+
+    /* ===== Stage ===== */
+    .stage {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 52%, rgba(0, 0, 0, 0.6) 100%);
+      z-index: 1;
+    }
+
+    #space {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      touch-action: none;
+      cursor: crosshair;
+      z-index: 0;
+    }
+
+    /* ===== HUD ===== */
+    .hud {
+      position: absolute;
+      z-index: 3;
+    }
+
+    .panel {
+      top: 18px;
+      left: 18px;
+      width: 246px;
+      padding: 14px 14px 12px;
+      border-radius: 14px;
+      background: rgba(6, 13, 20, 0.74);
+      border: 1px solid rgba(92, 220, 255, 0.16);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55), inset 0 0 24px rgba(40, 120, 180, 0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      max-height: calc(100% - 36px);
+      overflow-y: auto;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.66rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #6fd6ff;
+    }
+
+    .panel-head::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #59e1ff;
+      box-shadow: 0 0 8px #59e1ff;
+    }
+
+    .field {
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .field-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 7px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.64rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8fa6b8;
+    }
+
+    .field-top b {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #bfeaff;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      display: block;
+      width: 100%;
+      height: 4px;
+      margin: 0;
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+      background: linear-gradient(
+        90deg,
+        #4fdcff 0%,
+        #4fdcff var(--fill, 50%),
+        #17303f var(--fill, 50%),
+        #17303f 100%
+      );
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #e8fbff;
+      border: 2px solid #35c8f0;
+      box-shadow: 0 0 10px rgba(80, 220, 255, 0.9);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #e8fbff;
+      border: 2px solid #35c8f0;
+      box-shadow: 0 0 10px rgba(80, 220, 255, 0.9);
+      cursor: pointer;
+    }
+
+    .switch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 9px 0;
+      font-size: 0.74rem;
+      color: #b7c9d6;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .switch input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .switch .track {
+      position: relative;
+      flex: 0 0 auto;
+      width: 30px;
+      height: 16px;
+      border-radius: 99px;
+      background: #16303f;
+      border: 1px solid rgba(92, 220, 255, 0.18);
+      transition: background 0.2s ease;
+    }
+
+    .switch .track::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #7b98ab;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .switch input:checked + .track {
+      background: rgba(50, 200, 255, 0.28);
+    }
+
+    .switch input:checked + .track::after {
+      transform: translateX(14px);
+      background: #d8f7ff;
+      box-shadow: 0 0 8px #59e1ff;
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .pbtn {
+      padding: 8px 6px;
+      border-radius: 9px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.66rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #bfe8f8;
+      background: rgba(30, 70, 95, 0.34);
+      border: 1px solid rgba(92, 220, 255, 0.22);
+      cursor: pointer;
+      transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
+    }
+
+    .pbtn:hover {
+      background: rgba(50, 130, 175, 0.4);
+      border-color: rgba(120, 235, 255, 0.55);
+      box-shadow: 0 0 14px rgba(80, 220, 255, 0.25);
+      color: #ffffff;
+    }
+
+    .pbtn.is-on {
+      background: rgba(255, 96, 80, 0.22);
+      border-color: rgba(255, 130, 110, 0.6);
+      color: #ffd9d2;
+      box-shadow: 0 0 14px rgba(255, 96, 80, 0.22);
+    }
+
+    .counter {
+      top: 22px;
+      right: 18px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 99px;
+      background: rgba(6, 13, 20, 0.7);
+      border: 1px solid rgba(92, 220, 255, 0.16);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #7d99ad;
+    }
+
+    .counter b {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: #d9f6ff;
+      text-shadow: 0 0 12px rgba(92, 220, 255, 0.55);
+    }
+
+    .hint {
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 16px;
+      border-radius: 99px;
+      background: rgba(4, 10, 16, 0.62);
+      border: 1px solid rgba(92, 220, 255, 0.12);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      color: rgba(200, 225, 240, 0.62);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 720px) {
+      .title-bar {
+        height: 50px;
+        padding: 0 12px;
+      }
+
+      .title-bar h1 {
+        font-size: 0.72rem;
+        letter-spacing: 0.15em;
+      }
+
+      .panel {
+        top: 10px;
+        left: 10px;
+        width: 202px;
+        padding: 10px;
+        max-height: calc(100% - 20px);
+      }
+
+      .counter {
+        top: 12px;
+        right: 10px;
+        padding: 6px 10px;
+        gap: 6px;
+        letter-spacing: 0.12em;
+      }
+
+      .pbtn {
+        font-size: 0.6rem;
+        letter-spacing: 0.06em;
+        padding: 7px 4px;
+      }
+
+      .hint {
+        bottom: 10px;
+        width: calc(100% - 24px);
+        padding: 7px 10px;
+        font-size: 0.54rem;
+        letter-spacing: 0.02em;
+        text-align: center;
+        white-space: normal;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="title-bar">
+      <h1><span class="pulse-dot" aria-hidden="true"></span>Mechanics Phenomena Visualized</h1>
+    </header>
+
+    <main class="stage" id="stage">
+      <canvas id="space" aria-label="Gravity simulation canvas"></canvas>
+
+      <aside class="hud panel" aria-label="Simulation controls">
+        <div class="panel-head">Control</div>
+
+        <label class="field" for="gravity">
+          <span class="field-top"><span>Gravity</span><b id="gravityVal">1.00&times;</b></span>
+          <input id="gravity" type="range" min="0" max="300" step="1" value="100" />
+        </label>
+
+        <label class="field" for="expansion">
+          <span class="field-top"><span>Expansion</span><b id="expansionVal">0</b></span>
+          <input id="expansion" type="range" min="0" max="100" step="1" value="0" />
+        </label>
+
+        <label class="field" for="mass">
+          <span class="field-top"><span>New mass</span><b id="massVal">18</b></span>
+          <input id="mass" type="range" min="1" max="60" step="1" value="18" />
+        </label>
+
+        <label class="switch">
+          <input id="trails" type="checkbox" checked />
+          <span class="track"></span>
+          Motion trails
+        </label>
+
+        <label class="switch">
+          <input id="merging" type="checkbox" checked />
+          <span class="track"></span>
+          Merge on collision
+        </label>
+
+        <div class="btn-row">
+          <button id="pauseBtn" class="pbtn" type="button">Pause</button>
+          <button id="clearBtn" class="pbtn" type="button">Clear</button>
+          <button id="galaxyBtn" class="pbtn" type="button">Galaxy</button>
+          <button id="binaryBtn" class="pbtn" type="button">Binary</button>
+        </div>
+      </aside>
+
+      <div class="hud counter"><b id="bodyCount">0</b><span>bodies</span></div>
+
+      <div class="hud hint">Drag to launch a body &mdash; Click to place at rest &mdash; sliders tune G &amp; expansion</div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var canvas = document.getElementById('space');
+      var ctx = canvas.getContext('2d');
+      var stage = document.getElementById('stage');
+      var countEl = document.getElementById('bodyCount');
+
+      var state = {
+        bodies: [],
+        flashes: [],
+        paused: false,
+        trails: true,
+        merging: true,
+        gravity: 100,
+        expansion: 0,
+        newMass: 18,
+        drag: null,
+        width: 0,
+        height: 0
+      };
+
+      var DT = 1 / 60;
+      var SOFT2 = 12 * 12;
+      var MAX_ACC = 900;
+
+      function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+      function lerp(a, b, t) { return a + (b - a) * t; }
+
+      // ---------- Appearance ----------
+      function massMix(m) {
+        var raw = clamp(Math.log10(m + 1) / Math.log10(2601), 0, 1);
+        return Math.pow(raw, 1.7);
+      }
+
+      function massColor(m) {
+        var t = massMix(m);
+        return [
+          Math.round(lerp(208, 255, t)),
+          Math.round(lerp(232, 86, t)),
+          Math.round(lerp(255, 60, t))
+        ];
+      }
+
+      function massRadius(m) {
+        return 2.2 * Math.cbrt(m) + 1.1;
+      }
+
+      function buildSprite(r, rgb) {
+        var size = Math.ceil(r * 6.4);
+        var c = size / 2;
+        var cv = document.createElement('canvas');
+        cv.width = size;
+        cv.height = size;
+        var g = cv.getContext('2d');
+        var R = rgb[0], G = rgb[1], B = rgb[2];
+        var grad = g.createRadialGradient(c, c, 0, c, c, c);
+        grad.addColorStop(0.00, 'rgba(255,255,255,1)');
+        grad.addColorStop(0.15, 'rgba(' + R + ',' + G + ',' + B + ',1)');
+        grad.addColorStop(0.17, 'rgba(' + R + ',' + G + ',' + B + ',0.94)');
+        grad.addColorStop(0.20, 'rgba(' + R + ',' + G + ',' + B + ',0.6)');
+        grad.addColorStop(0.27, 'rgba(' + R + ',' + G + ',' + B + ',0.22)');
+        grad.addColorStop(0.55, 'rgba(' + R + ',' + G + ',' + B + ',0.08)');
+        grad.addColorStop(1.00, 'rgba(' + R + ',' + G + ',' + B + ',0)');
+        g.fillStyle = grad;
+        g.fillRect(0, 0, size, size);
+        return { cv: cv, size: size };
+      }
+
+      function updateCount() {
+        countEl.textContent = state.bodies.length;
+      }
+
+      function makeBody(x, y, vx, vy, m) {
+        var rgb = massColor(m);
+        var r = massRadius(m);
+        var b = {
+          x: x,
+          y: y,
+          vx: vx,
+          vy: vy,
+          m: m,
+          r: r,
+          ax: 0,
+          ay: 0,
+          dead: false,
+          sprite: null
+        };
+        b.sprite = buildSprite(r, rgb);
+        state.bodies.push(b);
+        updateCount();
+        return b;
+      }
+
+      // ---------- Sizing ----------
+      function resize() {
+        var rect = stage.getBoundingClientRect();
+        var w = Math.max(1, Math.round(rect.width));
+        var h = Math.max(1, Math.round(rect.height));
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        if (state.width && state.height && (state.width !== w || state.height !== h)) {
+          var sx = w / state.width;
+          var sy = h / state.height;
+          for (var i = 0; i < state.bodies.length; i++) {
+            state.bodies[i].x *= sx;
+            state.bodies[i].y *= sy;
+          }
+        }
+
+        state.width = w;
+        state.height = h;
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // ---------- Simulation ----------
+      function simulate(dt) {
+        var bodies = state.bodies;
+        var n = bodies.length;
+        var G = state.gravity * 20;
+        var expK = state.expansion * 0.0012;
+        var cx = state.width / 2;
+        var cy = state.height / 2;
+        var i, j, a, b, dx, dy, d2, invD, pull;
+
+        for (i = 0; i < n; i++) {
+          bodies[i].ax = 0;
+          bodies[i].ay = 0;
+        }
+
+        for (i = 0; i < n; i++) {
+          a = bodies[i];
+          for (j = i + 1; j < n; j++) {
+            b = bodies[j];
+            dx = b.x - a.x;
+            dy = b.y - a.y;
+            d2 = dx * dx + dy * dy + SOFT2;
+            invD = 1 / Math.sqrt(d2);
+            pull = G * invD / d2;
+            a.ax += dx * pull * b.m;
+            a.ay += dy * pull * b.m;
+            b.ax -= dx * pull * a.m;
+            b.ay -= dy * pull * a.m;
+          }
+        }
+
+        for (i = 0; i < n; i++) {
+          b = bodies[i];
+          if (expK) {
+            b.ax += (b.x - cx) * expK;
+            b.ay += (b.y - cy) * expK;
+          }
+          var a2 = b.ax * b.ax + b.ay * b.ay;
+          if (a2 > MAX_ACC * MAX_ACC) {
+            var s = MAX_ACC / Math.sqrt(a2);
+            b.ax *= s;
+            b.ay *= s;
+          }
+          b.vx += b.ax * dt;
+          b.vy += b.ay * dt;
+          b.x += b.vx * dt;
+          b.y += b.vy * dt;
+        }
+
+        if (state.merging) resolveMerges();
+      }
+
+      function resolveMerges() {
+        var bodies = state.bodies;
+        var removed = false;
+
+        for (var i = 0; i < bodies.length; i++) {
+          var a = bodies[i];
+          if (a.dead) continue;
+          for (var j = i + 1; j < bodies.length; j++) {
+            var b = bodies[j];
+            if (b.dead) continue;
+            var dx = b.x - a.x;
+            var dy = b.y - a.y;
+            var d = Math.sqrt(dx * dx + dy * dy);
+            if (d >= (a.r + b.r) * 0.85) continue;
+
+            var total = a.m + b.m;
+            var vx = (a.m * a.vx + b.m * b.vx) / total;
+            var vy = (a.m * a.vy + b.m * b.vy) / total;
+            var x = (a.m * a.x + b.m * b.x) / total;
+            var y = (a.m * a.y + b.m * b.y) / total;
+            var rgb = massColor(total);
+            var r = massRadius(total);
+            var big = a.m >= b.m ? a : b;
+            var small = big === a ? b : a;
+
+            big.x = x;
+            big.y = y;
+            big.vx = vx;
+            big.vy = vy;
+            big.m = total;
+            big.r = r;
+            big.sprite = buildSprite(r, rgb);
+            small.dead = true;
+
+            state.flashes.push({ x: x, y: y, r: Math.max(a.r, b.r) * 0.9, life: 1 });
+            removed = true;
+          }
+        }
+
+        if (removed) {
+          var alive = [];
+          for (var k = 0; k < bodies.length; k++) {
+            if (!bodies[k].dead) alive.push(bodies[k]);
+          }
+          state.bodies = alive;
+          updateCount();
+        }
+      }
+
+      // ---------- Rendering ----------
+      function render(dt) {
+        var w = state.width;
+        var h = state.height;
+        var i;
+
+        if (state.trails && !state.paused) {
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.16)';
+          ctx.fillRect(0, 0, w, h);
+        } else {
+          ctx.clearRect(0, 0, w, h);
+        }
+
+        ctx.globalCompositeOperation = 'lighter';
+        for (i = 0; i < state.bodies.length; i++) {
+          var b = state.bodies[i];
+          var s = b.sprite.size;
+          ctx.drawImage(b.sprite.cv, b.x - s / 2, b.y - s / 2);
+        }
+
+        for (i = state.flashes.length - 1; i >= 0; i--) {
+          var f = state.flashes[i];
+          var p = 1 - f.life;
+          ctx.beginPath();
+          ctx.arc(f.x, f.y, f.r + p * 46, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(190, 235, 255, ' + (f.life * 0.7).toFixed(3) + ')';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          if (!state.paused) {
+            f.life -= dt * 1.6;
+            if (f.life <= 0) state.flashes.splice(i, 1);
+          }
+        }
+
+        ctx.globalCompositeOperation = 'source-over';
+        drawDrag();
+      }
+
+      function drawDrag() {
+        var d = state.drag;
+        if (!d) return;
+
+        var dx = d.x1 - d.x0;
+        var dy = d.y1 - d.y0;
+        var dist = Math.hypot(dx, dy);
+        var m = state.newMass;
+        var r = massRadius(m);
+
+        ctx.save();
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 5]);
+        ctx.strokeStyle = 'rgba(120, 220, 255, 0.55)';
+        ctx.beginPath();
+        ctx.moveTo(d.x0, d.y0);
+        ctx.lineTo(d.x1, d.y1);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.arc(d.x0, d.y0, r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(200, 235, 255, 0.22)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(150, 225, 255, 0.9)';
+        ctx.stroke();
+
+        if (dist >= 6) {
+          var ux = dx / dist;
+          var uy = dy / dist;
+          var ah = 12;
+          ctx.beginPath();
+          ctx.moveTo(d.x1, d.y1);
+          ctx.lineTo(d.x1 - ux * ah - uy * ah * 0.6, d.y1 - uy * ah + ux * ah * 0.6);
+          ctx.lineTo(d.x1 - ux * ah + uy * ah * 0.6, d.y1 - uy * ah - ux * ah * 0.6);
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(150, 230, 255, 0.95)';
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // ---------- Scenes ----------
+      function clearAll() {
+        state.bodies = [];
+        state.flashes = [];
+        state.drag = null;
+        updateCount();
+      }
+
+      function generateGalaxy() {
+        clearAll();
+        var cx = state.width / 2;
+        var cy = state.height / 2;
+        var G = state.gravity * 20;
+        var starMass = 1500;
+        var minDim = Math.min(state.width, state.height);
+        var centralR = massRadius(starMass);
+        var rInner = Math.max(centralR * 2.6, minDim * 0.12);
+        var rOuter = minDim * 0.47;
+        var rings = 8;
+        var perRing = Math.max(3, Math.min(9, Math.round((state.width * state.height) / 130000)));
+        var ringData = [];
+        var i, k;
+
+        makeBody(cx, cy, 0, 0, starMass);
+
+        // Evenly spaced rings keep the disk from collapsing into itself.
+        for (i = 0; i < rings; i++) {
+          var rr = rInner + (rOuter - rInner) * (i / (rings - 1)) + (Math.random() - 0.5) * 8;
+          var masses = [];
+          for (k = 0; k < perRing; k++) masses.push(0.08 + Math.random() * 0.42);
+          ringData.push({ r: rr, masses: masses });
+        }
+
+        var enclosed = 0;
+        for (i = 0; i < ringData.length; i++) {
+          var ring = ringData[i];
+          var ringMass = 0;
+          for (k = 0; k < ring.masses.length; k++) ringMass += ring.masses[k];
+          enclosed += ringMass;
+          // Only part of the flattened disk acts as enclosed mass.
+          var mEnc = starMass + enclosed * 0.5;
+          var offset = Math.random() * Math.PI * 2;
+          for (k = 0; k < ring.masses.length; k++) {
+            var ang = offset + k * (Math.PI * 2 / perRing) + (Math.random() - 0.5) * 0.1;
+            var v = Math.sqrt(G * mEnc / ring.r);
+            makeBody(
+              cx + Math.cos(ang) * ring.r,
+              cy + Math.sin(ang) * ring.r,
+              -Math.sin(ang) * v,
+              Math.cos(ang) * v,
+              ring.masses[k]
+            );
+          }
+        }
+
+        // Two brighter planets add colour contrast to the field.
+        for (i = 0; i < 2; i++) {
+          var pr = rInner + Math.random() * (rOuter - rInner);
+          var pa = Math.random() * Math.PI * 2;
+          var pm = 6 + Math.random() * 10;
+          var pv = Math.sqrt(G * starMass / pr);
+          makeBody(
+            cx + Math.cos(pa) * pr,
+            cy + Math.sin(pa) * pr,
+            -Math.sin(pa) * pv,
+            Math.cos(pa) * pv,
+            pm
+          );
+        }
+      }
+
+      function generateBinary() {
+        clearAll();
+        var cx = state.width / 2;
+        var cy = state.height / 2;
+        var G = state.gravity * 20;
+        var minDim = Math.min(state.width, state.height);
+        var mA = 1000;
+        var mB = 900;
+        var separ = minDim * 0.18;
+        var total = mA + mB;
+        var vRel = Math.sqrt(G * total / separ);
+        var vA = vRel * mB / total;
+        var vB = vRel * mA / total;
+        var i;
+
+        // Both stars sit symmetrically around the centre of mass.
+        makeBody(cx - separ * (mB / total), cy, 0, -vA, mA);
+        makeBody(cx + separ * (mA / total), cy, 0, vB, mB);
+
+        for (i = 0; i < 34; i++) {
+          var rr = separ * (2.1 + Math.random() * 2.6);
+          var ang = Math.random() * Math.PI * 2;
+          var m = 0.25 + Math.random() * 0.9;
+          var v = Math.sqrt(G * total / rr) * (0.96 + Math.random() * 0.04);
+          makeBody(
+            cx + Math.cos(ang) * rr,
+            cy + Math.sin(ang) * rr,
+            -Math.sin(ang) * v,
+            Math.cos(ang) * v,
+            m
+          );
+        }
+      }
+
+      // ---------- Input ----------
+      function localPoint(e) {
+        var rect = canvas.getBoundingClientRect();
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      }
+
+      canvas.addEventListener('pointerdown', function (e) {
+        if (e.button !== undefined && e.button !== 0) return;
+        canvas.setPointerCapture(e.pointerId);
+        var p = localPoint(e);
+        state.drag = { x0: p.x, y0: p.y, x1: p.x, y1: p.y, id: e.pointerId };
+      });
+
+      canvas.addEventListener('pointermove', function (e) {
+        if (!state.drag || e.pointerId !== state.drag.id) return;
+        var p = localPoint(e);
+        state.drag.x1 = p.x;
+        state.drag.y1 = p.y;
+      });
+
+      function endDrag(e) {
+        if (!state.drag || e.pointerId !== state.drag.id) return;
+        var d = state.drag;
+        state.drag = null;
+
+        var dx = d.x1 - d.x0;
+        var dy = d.y1 - d.y0;
+        var dist = Math.hypot(dx, dy);
+        var m = state.newMass;
+
+        if (dist < 6) {
+          makeBody(d.x0, d.y0, 0, 0, m);
+        } else {
+          var speed = Math.min(dist * 5, 1100);
+          var ux = dx / dist;
+          var uy = dy / dist;
+          makeBody(d.x0, d.y0, ux * speed, uy * speed, m);
+        }
+      }
+
+      canvas.addEventListener('pointerup', endDrag);
+      canvas.addEventListener('pointercancel', function () { state.drag = null; });
+
+      // ---------- UI ----------
+      var gravityInput = document.getElementById('gravity');
+      var gravityVal = document.getElementById('gravityVal');
+      var expansionInput = document.getElementById('expansion');
+      var expansionVal = document.getElementById('expansionVal');
+      var massInput = document.getElementById('mass');
+      var massVal = document.getElementById('massVal');
+      var trailsToggle = document.getElementById('trails');
+      var mergingToggle = document.getElementById('merging');
+      var pauseBtn = document.getElementById('pauseBtn');
+      var clearBtn = document.getElementById('clearBtn');
+      var galaxyBtn = document.getElementById('galaxyBtn');
+      var binaryBtn = document.getElementById('binaryBtn');
+
+      function paintFill(input) {
+        var min = parseFloat(input.min);
+        var max = parseFloat(input.max);
+        var pct = ((parseFloat(input.value) - min) / (max - min)) * 100;
+        input.style.setProperty('--fill', pct + '%');
+      }
+
+      gravityInput.addEventListener('input', function () {
+        state.gravity = parseFloat(gravityInput.value);
+        gravityVal.textContent = (state.gravity / 100).toFixed(2) + '\u00d7';
+        paintFill(gravityInput);
+      });
+
+      expansionInput.addEventListener('input', function () {
+        state.expansion = parseFloat(expansionInput.value);
+        expansionVal.textContent = expansionInput.value;
+        paintFill(expansionInput);
+      });
+
+      massInput.addEventListener('input', function () {
+        state.newMass = parseFloat(massInput.value);
+        massVal.textContent = massInput.value;
+        paintFill(massInput);
+      });
+
+      trailsToggle.addEventListener('change', function () {
+        state.trails = trailsToggle.checked;
+      });
+
+      mergingToggle.addEventListener('change', function () {
+        state.merging = mergingToggle.checked;
+      });
+
+      pauseBtn.addEventListener('click', function () {
+        state.paused = !state.paused;
+        pauseBtn.textContent = state.paused ? 'Resume' : 'Pause';
+        pauseBtn.classList.toggle('is-on', state.paused);
+      });
+
+      clearBtn.addEventListener('click', clearAll);
+      galaxyBtn.addEventListener('click', generateGalaxy);
+      binaryBtn.addEventListener('click', generateBinary);
+
+      [gravityInput, expansionInput, massInput].forEach(paintFill);
+
+      // ---------- Main loop ----------
+      var last = performance.now();
+      var acc = 0;
+
+      function loop(now) {
+        var elapsed = Math.min((now - last) / 1000, 0.05);
+        last = now;
+
+        if (!state.paused) {
+          acc += elapsed;
+          var guard = 0;
+          while (acc >= DT && guard < 5) {
+            simulate(DT);
+            acc -= DT;
+            guard++;
+          }
+          if (guard >= 5) acc = 0;
+        }
+
+        render(state.paused ? 0 : elapsed);
+        requestAnimationFrame(loop);
+      }
+
+      // ---------- Boot ----------
+      resize();
+      generateGalaxy();
+
+      if (window.ResizeObserver) {
+        new ResizeObserver(resize).observe(stage);
+      } else {
+        window.addEventListener('resize', resize);
+      }
+
+      requestAnimationFrame(function (t) {
+        last = t;
+        loop(t);
+      });
+    })();
+  </script>
+</body>
+</html>

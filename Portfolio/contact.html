@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Me | Bowen Zhang</title>
+  <meta name="description" content="Get in touch with Bowen Zhang — happy to chat about projects, ideas, or a friendly hello." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ===== Navbar ===== -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand">
+        <span class="brand-dot"></span>
+        Bowen Zhang
+      </a>
+      <button class="nav-toggle" aria-label="Toggle menu" onclick="toggleNav()">&#9776;</button>
+      <ul class="nav-links" id="navLinks">
+        <a href="index.html">Home</a>
+        <a href="resume.html">Resume</a>
+        <a href="projects.html">Projects</a>
+        <a href="contact.html" class="active">Contact Me</a>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ===== Page header ===== -->
+  <header class="page-header">
+    <div class="container">
+      <h1>Contact Me</h1>
+      <p>Got a question, a project idea, or just want to say hi? I'd love to hear from you.</p>
+    </div>
+  </header>
+
+  <!-- ===== Contact body ===== -->
+  <section class="section" style="padding-top:24px;">
+    <div class="container">
+      <div class="contact-grid">
+
+        <!-- Contact details -->
+        <div class="contact-card">
+          <h2 style="font-size:1.3rem; margin-bottom:20px;">Reach me here</h2>
+          <ul class="contact-list">
+            <li>
+              <span class="contact-icon">&#9993;</span>
+              <div>
+                <div class="label">Email</div>
+                <div class="value"><a href="mailto:Bowen.Zhang26@student.xjtlu.edu.cn">Bowen.Zhang26@student.xjtlu.edu.cn</a></div>
+              </div>
+            </li>
+            <li>
+              <span class="contact-icon">&#128241;</span>
+              <div>
+                <div class="label">Phone</div>
+                <div class="value">+86 13476387932</div>
+              </div>
+            </li>
+            <li>
+              <span class="contact-icon">&#128205;</span>
+              <div>
+                <div class="label">Location</div>
+                <div class="value">Jiangsu, China</div>
+              </div>
+            </li>
+            <li>
+              <span class="contact-icon">&#129309;</span>
+              <div>
+                <div class="label">Social</div>
+                <div class="value">QQ: 1084774713 &middot; WeChat: Ericwillbegreat20</div>
+              </div>
+            </li>
+          </ul>
+          <p style="margin-top:18px; color:var(--text-soft); font-size:0.9rem;">
+            I usually reply within a day or two. Mornings (with coffee) are best.
+          </p>
+        </div>
+
+        <!-- Contact form -->
+        <div class="contact-card">
+          <h2 style="font-size:1.3rem; margin-bottom:20px;">Send a message</h2>
+          <form id="contactForm">
+            <!-- Honeypot: hidden from humans, bots tend to fill it in -->
+            <div style="position:absolute; left:-9999px; top:-9999px; width:1px; height:1px; overflow:hidden;" aria-hidden="true">
+              <label for="website">Website</label>
+              <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label for="name">Your name</label>
+              <input type="text" id="name" name="name" placeholder="e.g. Xin Li" required />
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" placeholder="e.g. you@outlook.com" required />
+            </div>
+            <div class="form-group">
+              <label for="subject">Subject</label>
+              <input type="text" id="subject" name="subject" placeholder="What's this about?" />
+            </div>
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" placeholder="Write something kind..." required></textarea>
+            </div>
+            <button type="submit" class="btn">Send message &rarr;</button>
+            <p id="formStatus" role="status" aria-live="polite" style="margin-top:14px; font-size:0.9rem; color:var(--text-soft);"></p>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-meta">&copy; 2026 Bowen Zhang. Built with warmth and rounded corners.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    function toggleNav() {
+      document.getElementById('navLinks').classList.toggle('open');
+    }
+
+    // ---- Supabase ----
+    const SUPABASE_URL = 'https://bbxfszjitqnbimltrtcm.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_HxZNfMRE5vIFYJTr94tprg_7w_BH5lf';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+    const contactForm = document.getElementById('contactForm');
+    const formStatus = document.getElementById('formStatus');
+
+    function showStatus(text, isError) {
+      formStatus.textContent = text;
+      formStatus.style.color = isError ? '#C0392B' : 'var(--accent)';
+    }
+
+    contactForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      // Honeypot: only bots fill this hidden field. Ignore silently — no insert,
+      // no error, nothing shown to the sender.
+      if (contactForm.elements['website'].value !== '') {
+        contactForm.reset();
+        formStatus.textContent = '';
+        return;
+      }
+
+      const submitBtn = contactForm.querySelector('button[type="submit"]');
+      const payload = {
+        name: contactForm.elements['name'].value.trim(),
+        email: contactForm.elements['email'].value.trim(),
+        message: contactForm.elements['message'].value.trim()
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+      showStatus('', false);
+
+      const { error } = await db.from('contacts').insert(payload);
+
+      if (error) {
+        console.error('Supabase insert failed:', error);
+        showStatus('Sorry, your message could not be sent. Please try again or email me directly.', true);
+      } else {
+        contactForm.reset();
+        showStatus('Thanks for your message! I will reply you as soon as possible.', false);
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Send message &rarr;';
+    });
+  </script>
+</body>
+</html>

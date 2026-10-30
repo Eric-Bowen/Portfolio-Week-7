@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects | Bowen Zhang</title>
+  <meta name="description" content="A selection of projects by Bowen Zhang — small, friendly tools and apps built with care." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- ===== Navbar ===== -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand">
+        <span class="brand-dot"></span>
+        Bowen Zhang
+      </a>
+      <button class="nav-toggle" aria-label="Toggle menu" onclick="toggleNav()">&#9776;</button>
+      <ul class="nav-links" id="navLinks">
+        <a href="index.html">Home</a>
+        <a href="resume.html">Resume</a>
+        <a href="projects.html" class="active">Projects</a>
+        <a href="contact.html">Contact Me</a>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ===== Page header ===== -->
+  <header class="page-header">
+    <div class="container">
+      <h1>Projects</h1>
+      <p>A handful of things I've built for fun, for learning, and for real people.</p>
+    </div>
+  </header>
+
+  <!-- ===== To-Do List App ===== -->
+  <section class="section todo-section" id="todo-app">
+    <div class="container">
+      <h2 class="section-title">To-Do List</h2>
+      <p class="section-subtitle">Pick a date on the calendar, jot a task, and check things off.</p>
+
+      <div class="todo-app">
+        <div class="todo-calendar" role="group" aria-label="Date picker calendar">
+          <div class="cal-header">
+            <button id="calPrev" type="button" class="cal-nav" aria-label="Previous month">&larr;</button>
+            <span id="calMonth" class="cal-month" aria-live="polite"></span>
+            <button id="calNext" type="button" class="cal-nav" aria-label="Next month">&rarr;</button>
+          </div>
+          <div class="cal-weekdays" aria-hidden="true">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+          </div>
+          <div id="calGrid" class="cal-grid"></div>
+        </div>
+
+        <div class="todo-main">
+          <form id="todoForm" class="todo-form">
+            <label for="todoText" class="todo-selected-date">
+              Selected: <span id="todoDateLabel">Today</span>
+            </label>
+
+            <div class="todo-pickers">
+              <div class="picker-group">
+                <span class="picker-label">Priority</span>
+                <div class="priority-options" role="radiogroup" aria-label="Priority">
+                  <button type="button" class="pri-btn is-low" data-pri="low">Low</button>
+                  <button type="button" class="pri-btn is-med is-active" data-pri="med">Medium</button>
+                  <button type="button" class="pri-btn is-high" data-pri="high">High</button>
+                </div>
+              </div>
+
+              <div class="picker-group">
+                <span class="picker-label">Emoji</span>
+                <div class="emoji-options" role="radiogroup" aria-label="Emoji">
+                  <button type="button" class="emoji-btn is-active" data-emoji="" aria-label="No emoji">&times;</button>
+                  <button type="button" class="emoji-btn" data-emoji="💡" aria-label="Idea">💡</button>
+                  <button type="button" class="emoji-btn" data-emoji="☕" aria-label="Coffee">☕</button>
+                  <button type="button" class="emoji-btn" data-emoji="📝" aria-label="Note">📝</button>
+                  <button type="button" class="emoji-btn" data-emoji="🏃" aria-label="Exercise">🏃</button>
+                  <button type="button" class="emoji-btn" data-emoji="📞" aria-label="Call">📞</button>
+                  <button type="button" class="emoji-btn" data-emoji="🛒" aria-label="Errand">🛒</button>
+                  <button type="button" class="emoji-btn" data-emoji="💻" aria-label="Work">💻</button>
+                  <button type="button" class="emoji-btn" data-emoji="🎯" aria-label="Goal">🎯</button>
+                  <button type="button" class="emoji-btn" data-emoji="❤️" aria-label="Health">❤️</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="todo-input-row">
+              <input id="todoText" type="text" placeholder="What needs doing?" required maxlength="140" autocomplete="off" />
+              <button type="submit" class="btn">Add</button>
+            </div>
+          </form>
+
+          <p id="todoCount" class="todo-count" aria-live="polite"></p>
+          <p id="todoError" class="todo-error" role="alert" style="display:none;"></p>
+
+          <ul id="todoList" class="todo-list" aria-label="Task list"></ul>
+          <p id="todoEmpty" class="todo-empty">No tasks yet. Pick a date and add one above.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Weather App ===== -->
+  <section class="section weather-section" id="weather-app">
+    <div class="container">
+      <h2 class="section-title">Weather App</h2>
+      <p class="section-subtitle">Type in a city and see what the sky is up to right now.</p>
+
+      <div class="weather-app">
+        <form id="weatherForm" class="weather-form">
+          <div class="weather-input-row">
+            <div class="weather-input-wrap">
+              <input
+                id="weatherCity"
+                type="text"
+                placeholder="Enter a city, e.g. Beijing"
+                maxlength="80"
+                autocomplete="off"
+                aria-label="City name"
+              />
+              <ul id="weatherSuggestions" class="weather-suggestions" hidden></ul>
+            </div>
+            <button type="submit" id="weatherSearchBtn" class="btn">Search</button>
+            <div class="unit-toggle" role="group" aria-label="Temperature unit">
+              <button type="button" id="unitC" class="unit-btn is-active" aria-pressed="true">&deg;C</button>
+              <button type="button" id="unitF" class="unit-btn" aria-pressed="false">&deg;F</button>
+            </div>
+          </div>
+        </form>
+
+        <p id="weatherMessage" class="weather-message" role="status" aria-live="polite"></p>
+
+        <div id="weatherResult" class="weather-result" style="display:none;">
+          <div class="weather-result-top">
+            <div class="weather-icon-wrap">
+              <span id="weatherIcon" class="weather-icon" aria-hidden="true"></span>
+            </div>
+            <div class="weather-temp-block">
+              <span id="weatherTemp" class="weather-temp"></span>
+              <span id="weatherTempUnit" class="weather-temp-unit">&deg;C</span>
+            </div>
+          </div>
+          <div class="weather-result-body">
+            <p id="weatherCityName" class="weather-city"></p>
+            <p id="weatherCondition" class="weather-condition"></p>
+            <div class="weather-details">
+              <span class="weather-detail" id="weatherHumidity"></span>
+              <span class="weather-detail" id="weatherWind"></span>
+            </div>
+            <p id="weatherReportTime" class="weather-report-time"></p>
+          </div>
+        </div>
+
+        <div id="weatherForecast" class="weather-forecast" style="display:none;">
+          <h3 class="weather-forecast-title">3-Day Forecast</h3>
+          <div id="forecastCards" class="forecast-cards"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== World Time App ===== -->
+  <section class="section worldtime-section" id="worldtime-app">
+    <div class="container">
+      <h2 class="section-title">World Time</h2>
+      <p class="section-subtitle">Look up the current local time in any city around the globe.</p>
+
+      <div class="worldtime-app">
+        <form id="worldtimeForm" class="worldtime-form">
+          <div class="weather-input-row">
+            <div class="weather-input-wrap">
+              <input
+                id="worldtimeCity"
+                type="text"
+                placeholder="Add a city, e.g. Tokyo"
+                maxlength="80"
+                autocomplete="off"
+                aria-label="City name"
+              />
+              <ul id="worldtimeSuggestions" class="weather-suggestions" hidden></ul>
+            </div>
+            <button type="submit" id="worldtimeSearchBtn" class="btn">Add</button>
+          </div>
+        </form>
+
+        <p id="worldtimeMessage" class="weather-message" role="status" aria-live="polite"></p>
+
+        <p id="worldtimeEmpty" class="worldtime-empty">No cities yet — add one above to see its local time.</p>
+        <div id="worldtimeClocks" class="worldtime-clocks"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Physics Lesson ===== -->
+  <section class="section physics-section" id="physics-lesson">
+    <div class="container">
+      <h2 class="section-title">Physics Lesson</h2>
+      <p class="section-subtitle">A gravity sandbox where planets pull, orbit, and merge in real time.</p>
+
+      <div class="lesson-card-wrap">
+        <article class="project-card">
+          <div class="project-banner lesson-banner" aria-hidden="true">&#9673;</div>
+          <div class="project-body">
+            <h3>Mechanics Phenomena Visualized</h3>
+            <p>Drag to slingshot new planets, tune gravity and cosmic expansion, and watch colliding bodies merge into heavier worlds.</p>
+            <div class="project-tags">
+              <span>Canvas</span>
+              <span>Gravity</span>
+              <span>Simulation</span>
+            </div>
+            <a class="project-link" href="physics-lesson.html">Open the lesson &rarr;</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-meta">&copy; 2026 Bowen Zhang. Built with warmth and rounded corners.</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleNav() {
+      document.getElementById('navLinks').classList.toggle('open');
+    }
+  </script>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // ====== State ======
+      var SUPABASE_URL = 'https://iavwxzinglbvgaxwltva.supabase.co';
+      var SUPABASE_KEY = 'sb_publishable_1_B-ug3oD23h1BiB0S58NA_cEtwEv0q';
+      var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      var TABLE = 'todos';
+      var tasks = [];
+      var viewYear = new Date().getFullYear();
+      var viewMonth = new Date().getMonth(); // 0-based
+      var selectedKey = toKey(new Date()); // YYYY-MM-DD
+      var selectedPriority = 'med'; // 'low' | 'med' | 'high'
+      var selectedEmoji = ''; // '' or a single emoji
+
+      var PRIORITY_LABELS = { low: 'Low', med: 'Medium', high: 'High' };
+
+      // ====== Elements ======
+      var calGrid = document.getElementById('calGrid');
+      var calMonth = document.getElementById('calMonth');
+      var calPrev = document.getElementById('calPrev');
+      var calNext = document.getElementById('calNext');
+      var todoForm = document.getElementById('todoForm');
+      var todoText = document.getElementById('todoText');
+      var todoDateLabel = document.getElementById('todoDateLabel');
+      var todoList = document.getElementById('todoList');
+      var todoEmpty = document.getElementById('todoEmpty');
+      var todoCount = document.getElementById('todoCount');
+      var todoError = document.getElementById('todoError');
+      var priButtons = document.querySelectorAll('.pri-btn');
+      var emojiButtons = document.querySelectorAll('.emoji-btn');
+
+      // ====== Date helpers (local time, no TZ drift) ======
+      function toKey(d) {
+        var y = d.getFullYear();
+        var m = ('0' + (d.getMonth() + 1)).slice(-2);
+        var day = ('0' + d.getDate()).slice(-2);
+        return y + '-' + m + '-' + day;
+      }
+      function keyToDate(key) {
+        var parts = key.split('-').map(Number);
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+      }
+      function prettyDate(key) {
+        var d = keyToDate(key);
+        var today = new Date(); today.setHours(0,0,0,0);
+        var diff = Math.round((d - today) / 86400000);
+        if (diff === 0) return 'Today';
+        if (diff === 1) return 'Tomorrow';
+        if (diff === -1) return 'Yesterday';
+        return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+      function isSameDay(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+
+      // ====== Error display ======
+      var errorTimer = null;
+      function showError(msg) {
+        todoError.textContent = msg;
+        todoError.style.display = '';
+        if (errorTimer) clearTimeout(errorTimer);
+        errorTimer = setTimeout(function () { todoError.style.display = 'none'; }, 4000);
+      }
+
+      // ====== Supabase data layer ======
+      function mapRow(row) {
+        if (!row) return null;
+        return {
+          id: row.id,
+          text: row.text,
+          date: row.date, // date column comes back as YYYY-MM-DD string
+          priority: row.priority || 'med',
+          emoji: row.emoji || '',
+          done: !!row.done,
+          createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now()
+        };
+      }
+
+      async function fetchTasks() {
+        var res = await supabase.from(TABLE).select('*').order('created_at', { ascending: true });
+        if (res.error) throw res.error;
+        return (res.data || []).map(mapRow);
+      }
+
+      async function insertTask(task) {
+        var res = await supabase.from(TABLE).insert({
+          text: task.text,
+          date: task.date,
+          priority: task.priority,
+          emoji: task.emoji,
+          done: task.done
+        }).select().single();
+        if (res.error) throw res.error;
+        return mapRow(res.data);
+      }
+
+      async function updateTask(id, patch) {
+        var res = await supabase.from(TABLE).update(patch).eq('id', id).select().single();
+        if (res.error) throw res.error;
+        return mapRow(res.data);
+      }
+
+      async function deleteTask(id) {
+        var res = await supabase.from(TABLE).delete().eq('id', id);
+        if (res.error) throw res.error;
+      }
+
+      // ====== Calendar render ======
+      function renderCalendar() {
+        var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        calMonth.textContent = monthNames[viewMonth] + ' ' + viewYear;
+        calGrid.innerHTML = '';
+
+        var first = new Date(viewYear, viewMonth, 1);
+        var startDow = first.getDay(); // 0=Sun
+        var daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+        var today = new Date();
+
+        // Leading blanks
+        for (var i = 0; i < startDow; i++) {
+          var blank = document.createElement('button');
+          blank.type = 'button';
+          blank.className = 'cal-cell cal-blank';
+          blank.tabIndex = -1;
+          blank.disabled = true;
+          calGrid.appendChild(blank);
+        }
+
+        for (var d = 1; d <= daysInMonth; d++) {
+          var cellDate = new Date(viewYear, viewMonth, d);
+          var key = toKey(cellDate);
+          var cell = document.createElement('button');
+          cell.type = 'button';
+          cell.className = 'cal-cell';
+          cell.textContent = d;
+          cell.dataset.key = key;
+          if (isSameDay(cellDate, today)) cell.classList.add('is-today');
+          if (key === selectedKey) cell.classList.add('is-selected');
+          if (tasks.some(function (t) { return t.date === key; })) cell.classList.add('has-tasks');
+          cell.addEventListener('click', function (e) {
+            selectedKey = e.currentTarget.dataset.key;
+            renderCalendar();
+            renderForm();
+          });
+          calGrid.appendChild(cell);
+        }
+      }
+
+      // ====== Form render ======
+      function renderForm() {
+        todoDateLabel.textContent = prettyDate(selectedKey);
+      }
+
+      // ====== Task list render ======
+      function renderList() {
+        todoList.innerHTML = '';
+        // Sort: by date ascending, then by creation
+        var sorted = tasks.slice().sort(function (a, b) {
+          if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+          return a.createdAt - b.createdAt;
+        });
+
+        // Counter: "X of Y tasks completed"
+        var done = tasks.filter(function (t) { return t.done; }).length;
+        var total = tasks.length;
+        if (total === 0) {
+          todoCount.style.display = 'none';
+        } else {
+          todoCount.style.display = '';
+          var noun = total === 1 ? 'task' : 'tasks';
+          todoCount.textContent = done + ' of ' + total + ' ' + noun + ' completed';
+        }
+
+        if (sorted.length === 0) {
+          todoEmpty.style.display = '';
+          todoList.style.display = 'none';
+          return;
+        }
+        todoEmpty.style.display = 'none';
+        todoList.style.display = '';
+
+        sorted.forEach(function (task) {
+          var li = document.createElement('li');
+          li.className = 'todo-item' + (task.done ? ' is-done' : '');
+
+          var check = document.createElement('input');
+          check.type = 'checkbox';
+          check.className = 'todo-check';
+          check.checked = task.done;
+          check.setAttribute('aria-label', 'Mark task as done');
+          check.addEventListener('change', function () {
+            var newDone = check.checked;
+            var prevDone = task.done;
+            task.done = newDone;
+            renderList();
+            updateTask(task.id, { done: newDone }).catch(function (err) {
+              task.done = prevDone;
+              renderList();
+              showError('Could not update task: ' + (err.message || err));
+            });
+          });
+
+          var main = document.createElement('div');
+          main.className = 'todo-content';
+          var metaRow = document.createElement('div');
+          metaRow.className = 'todo-meta';
+          var dateChip = document.createElement('span');
+          dateChip.className = 'todo-date';
+          dateChip.textContent = prettyDate(task.date);
+          metaRow.appendChild(dateChip);
+          var pri = task.priority || 'med';
+          var priBadge = document.createElement('span');
+          priBadge.className = 'todo-pri is-' + pri;
+          priBadge.textContent = PRIORITY_LABELS[pri];
+          metaRow.appendChild(priBadge);
+          main.appendChild(metaRow);
+          var textEl = document.createElement('span');
+          textEl.className = 'todo-text';
+          if (task.emoji) {
+            var emojiEl = document.createElement('span');
+            emojiEl.className = 'todo-emoji';
+            emojiEl.textContent = task.emoji;
+            textEl.appendChild(emojiEl);
+          }
+          var textNode = document.createElement('span');
+          textNode.className = 'todo-text-node';
+          textNode.textContent = task.text;
+          textNode.title = 'Click to edit';
+          textNode.addEventListener('click', function () {
+            startEdit(task, textNode);
+          });
+          textEl.appendChild(textNode);
+          main.appendChild(textEl);
+
+          var del = document.createElement('button');
+          del.type = 'button';
+          del.className = 'todo-del';
+          del.setAttribute('aria-label', 'Delete task');
+          del.innerHTML = '&times;';
+          del.addEventListener('click', function () {
+            var removed = task;
+            var idx = tasks.findIndex(function (t) { return t.id === task.id; });
+            if (idx >= 0) tasks.splice(idx, 1);
+            renderList();
+            renderCalendar();
+            deleteTask(removed.id).catch(function (err) {
+              // Re-insert at the same position on failure
+              if (idx >= 0) tasks.splice(idx, 0, removed);
+              renderList();
+              renderCalendar();
+              showError('Could not delete task: ' + (err.message || err));
+            });
+          });
+
+          li.appendChild(check);
+          li.appendChild(main);
+          li.appendChild(del);
+          todoList.appendChild(li);
+        });
+      }
+
+      // ====== Inline edit ======
+      function startEdit(task, textSpan) {
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'todo-edit-input';
+        input.value = task.text;
+        input.maxLength = 140;
+        input.setAttribute('aria-label', 'Edit task');
+        textSpan.replaceWith(input);
+        input.focus();
+        input.select();
+
+        var finished = false;
+        var originalText = task.text;
+        function save() {
+          if (finished) return;
+          finished = true;
+          var newText = input.value.trim();
+          if (!newText) {
+            // Treat empty edit as cancel
+            renderList();
+            return;
+          }
+          if (newText === originalText) {
+            renderList();
+            return;
+          }
+          // Optimistic update
+          task.text = newText;
+          renderList();
+          updateTask(task.id, { text: newText }).catch(function (err) {
+            task.text = originalText;
+            renderList();
+            showError('Could not save edit: ' + (err.message || err));
+          });
+        }
+        function cancel() {
+          if (finished) return;
+          finished = true;
+          renderList();
+        }
+        input.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') { e.preventDefault(); save(); }
+          else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+        });
+        input.addEventListener('blur', save);
+      }
+
+      // ====== Add task ======
+      todoForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var text = todoText.value.trim();
+        if (!text) return;
+        // Optimistic temp task with negative-id placeholder
+        var tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+        var tempTask = {
+          id: tempId,
+          text: text,
+          date: selectedKey,
+          priority: selectedPriority,
+          emoji: selectedEmoji,
+          done: false,
+          createdAt: Date.now()
+        };
+        tasks.push(tempTask);
+        todoText.value = '';
+        // Reset pickers to defaults after adding
+        setSelectedPriority('med');
+        setSelectedEmoji('');
+        renderList();
+        renderCalendar();
+
+        insertTask(tempTask).then(function (saved) {
+          // Replace the temp task with the DB-returned row (real id)
+          var idx = tasks.findIndex(function (t) { return t.id === tempId; });
+          if (idx >= 0) tasks[idx] = saved;
+          renderList();
+          renderCalendar();
+        }).catch(function (err) {
+          // Remove temp task on failure
+          tasks = tasks.filter(function (t) { return t.id !== tempId; });
+          renderList();
+          renderCalendar();
+          showError('Could not save task: ' + (err.message || err));
+        });
+      });
+
+      // ====== Pickers ======
+      function setSelectedPriority(pri) {
+        selectedPriority = pri;
+        priButtons.forEach(function (b) {
+          b.classList.toggle('is-active', b.dataset.pri === pri);
+        });
+      }
+      function setSelectedEmoji(emoji) {
+        selectedEmoji = emoji;
+        emojiButtons.forEach(function (b) {
+          b.classList.toggle('is-active', b.dataset.emoji === emoji);
+        });
+      }
+      priButtons.forEach(function (b) {
+        b.addEventListener('click', function () { setSelectedPriority(b.dataset.pri); });
+      });
+      emojiButtons.forEach(function (b) {
+        b.addEventListener('click', function () { setSelectedEmoji(b.dataset.emoji); });
+      });
+
+      // ====== Calendar nav ======
+      calPrev.addEventListener('click', function () {
+        viewMonth--;
+        if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+        renderCalendar();
+      });
+      calNext.addEventListener('click', function () {
+        viewMonth++;
+        if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+        renderCalendar();
+      });
+
+      // ====== Init ======
+      renderCalendar();
+      renderForm();
+      renderList(); // renders empty state while loading
+      fetchTasks().then(function (loaded) {
+        tasks = loaded;
+        renderList();
+        renderCalendar();
+      }).catch(function (err) {
+        showError('Could not load tasks: ' + (err.message || err));
+      });
+    })();
+  </script>
+
+  <script>
+    // ===== Shared city autocomplete =====
+    // Attaches a suggestion dropdown to a text input.
+    // cities: [{ name, zh, prov }]; onPick(city) runs after a selection.
+    // Returns a hide() function so forms can close the dropdown on submit.
+    function createCityAutocomplete(input, listEl, cities, onPick) {
+      var MAX_SUGGESTIONS = 8;
+      var activeIndex = -1;
+      var current = [];
+
+      function normalize(str) {
+        return str.toLowerCase().replace(/[\u2018\u2019]/g, "'");
+      }
+
+      function matchCities(query) {
+        var q = normalize(query.trim());
+        if (!q) return [];
+        var starts = [];
+        var contains = [];
+        for (var i = 0; i < cities.length; i++) {
+          var c = cities[i];
+          var name = normalize(c.name);
+          if (name.indexOf(q) === 0) {
+            starts.push(c);
+          } else if (name.indexOf(q) !== -1 || c.zh.indexOf(query.trim()) !== -1) {
+            contains.push(c);
+          }
+        }
+        return starts.concat(contains).slice(0, MAX_SUGGESTIONS);
+      }
+
+      function hide() {
+        listEl.hidden = true;
+        listEl.innerHTML = '';
+        activeIndex = -1;
+        current = [];
+      }
+
+      function render(list) {
+        listEl.innerHTML = '';
+        if (!list.length) {
+          hide();
+          return;
+        }
+        list.forEach(function (c, idx) {
+          var li = document.createElement('li');
+          li.setAttribute('role', 'option');
+          var nameSpan = document.createElement('span');
+          nameSpan.className = 'sug-name';
+          nameSpan.textContent = c.name === c.zh ? c.name : c.name + ' (' + c.zh + ')';
+          var provSpan = document.createElement('span');
+          provSpan.className = 'sug-province';
+          provSpan.textContent = c.prov;
+          li.appendChild(nameSpan);
+          li.appendChild(provSpan);
+          li.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+            select(idx);
+          });
+          listEl.appendChild(li);
+        });
+        listEl.hidden = false;
+      }
+
+      function updateActive() {
+        var items = listEl.querySelectorAll('li');
+        items.forEach(function (li, idx) {
+          li.classList.toggle('is-active', idx === activeIndex);
+        });
+      }
+
+      function select(idx) {
+        var c = current[idx];
+        if (!c) return;
+        input.value = c.name;
+        hide();
+        onPick(c);
+      }
+
+      input.addEventListener('input', function () {
+        var q = input.value.trim();
+        if (!q) {
+          hide();
+          return;
+        }
+        current = matchCities(q);
+        activeIndex = -1;
+        render(current);
+      });
+
+      input.addEventListener('keydown', function (e) {
+        if (listEl.hidden) return;
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          activeIndex = (activeIndex + 1) % current.length;
+          updateActive();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          activeIndex = (activeIndex - 1 + current.length) % current.length;
+          updateActive();
+        } else if (e.key === 'Enter' && activeIndex >= 0) {
+          e.preventDefault();
+          select(activeIndex);
+        } else if (e.key === 'Escape') {
+          hide();
+        }
+      });
+
+      input.addEventListener('blur', function () {
+        // Delay so a mousedown on a suggestion fires first
+        setTimeout(hide, 120);
+      });
+
+      return hide;
+    }
+  </script>
+
+  <script>
+    // ===== Weather App =====
+    // Uses the free Open-Meteo API (https://open-meteo.com). No API key required.
+    (function () {
+      'use strict';
+
+      // Open-Meteo (https://open-meteo.com): free, no API key, and allows
+      // cross-origin browser requests, so no proxy is needed.
+      // Step 1: geocode the city name -> latitude/longitude
+      // Step 2: fetch current weather for those coordinates
+      var GEOCODE_URL = 'https://geocoding-api.open-meteo.com/v1/search';
+      var FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
+
+      // ====== Elements ======
+      var weatherForm = document.getElementById('weatherForm');
+      var weatherCity = document.getElementById('weatherCity');
+      var weatherSearchBtn = document.getElementById('weatherSearchBtn');
+      var weatherMessage = document.getElementById('weatherMessage');
+      var weatherResult = document.getElementById('weatherResult');
+      var weatherIcon = document.getElementById('weatherIcon');
+      var weatherTemp = document.getElementById('weatherTemp');
+      var weatherCityName = document.getElementById('weatherCityName');
+      var weatherCondition = document.getElementById('weatherCondition');
+      var weatherHumidity = document.getElementById('weatherHumidity');
+      var weatherWind = document.getElementById('weatherWind');
+      var weatherReportTime = document.getElementById('weatherReportTime');
+      var weatherSuggestions = document.getElementById('weatherSuggestions');
+      var weatherTempUnit = document.getElementById('weatherTempUnit');
+      var unitC = document.getElementById('unitC');
+      var unitF = document.getElementById('unitF');
+      var weatherForecast = document.getElementById('weatherForecast');
+      var forecastCards = document.getElementById('forecastCards');
+
+      // Temperature unit state + last fetched result (for instant re-render)
+      var currentUnit = 'C';
+      var lastPlace = null;
+      var lastCurrent = null;
+      var lastDaily = null;
+
+      // ====== City dataset for autocomplete ======
+      // name: pinyin/English name, zh: Chinese name, prov: province
+      var CITY_LIST = [
+        { name: 'Beijing', zh: '北京', prov: 'Beijing' },
+        { name: 'Shanghai', zh: '上海', prov: 'Shanghai' },
+        { name: 'Guangzhou', zh: '广州', prov: 'Guangdong' },
+        { name: 'Shenzhen', zh: '深圳', prov: 'Guangdong' },
+        { name: 'Chengdu', zh: '成都', prov: 'Sichuan' },
+        { name: 'Hangzhou', zh: '杭州', prov: 'Zhejiang' },
+        { name: 'Wuhan', zh: '武汉', prov: 'Hubei' },
+        { name: 'Suizhou', zh: '随州', prov: 'Hubei' },
+        { name: 'Xi\u2019an', zh: '西安', prov: 'Shaanxi' },
+        { name: 'Nanjing', zh: '南京', prov: 'Jiangsu' },
+        { name: 'Suzhou', zh: '苏州', prov: 'Jiangsu' },
+        { name: 'Suzhou', zh: '宿州', prov: 'Anhui' },
+        { name: 'Tianjin', zh: '天津', prov: 'Tianjin' },
+        { name: 'Chongqing', zh: '重庆', prov: 'Chongqing' },
+        { name: 'Changsha', zh: '长沙', prov: 'Hunan' },
+        { name: 'Zhengzhou', zh: '郑州', prov: 'Henan' },
+        { name: 'Qingdao', zh: '青岛', prov: 'Shandong' },
+        { name: 'Jinan', zh: '济南', prov: 'Shandong' },
+        { name: 'Dalian', zh: '大连', prov: 'Liaoning' },
+        { name: 'Shenyang', zh: '沈阳', prov: 'Liaoning' },
+        { name: 'Harbin', zh: '哈尔滨', prov: 'Heilongjiang' },
+        { name: 'Kunming', zh: '昆明', prov: 'Yunnan' },
+        { name: 'Xiamen', zh: '厦门', prov: 'Fujian' },
+        { name: 'Fuzhou', zh: '福州', prov: 'Fujian' },
+        { name: 'Hefei', zh: '合肥', prov: 'Anhui' },
+        { name: 'Nanchang', zh: '南昌', prov: 'Jiangxi' },
+        { name: 'Changchun', zh: '长春', prov: 'Jilin' },
+        { name: 'Urumqi', zh: '乌鲁木齐', prov: 'Xinjiang' },
+        { name: 'Lhasa', zh: '拉萨', prov: 'Tibet' },
+        { name: 'Haikou', zh: '海口', prov: 'Hainan' },
+        { name: 'Sanya', zh: '三亚', prov: 'Hainan' },
+        { name: 'Guiyang', zh: '贵阳', prov: 'Guizhou' },
+        { name: 'Taiyuan', zh: '太原', prov: 'Shanxi' },
+        { name: 'Lanzhou', zh: '兰州', prov: 'Gansu' },
+        { name: 'Xining', zh: '西宁', prov: 'Qinghai' },
+        { name: 'Yinchuan', zh: '银川', prov: 'Ningxia' },
+        { name: 'Wuxi', zh: '无锡', prov: 'Jiangsu' },
+        { name: 'Changzhou', zh: '常州', prov: 'Jiangsu' },
+        { name: 'Nantong', zh: '南通', prov: 'Jiangsu' },
+        { name: 'Yangzhou', zh: '扬州', prov: 'Jiangsu' },
+        { name: 'Yantai', zh: '烟台', prov: 'Shandong' },
+        { name: 'Wenzhou', zh: '温州', prov: 'Zhejiang' },
+        { name: 'Ningbo', zh: '宁波', prov: 'Zhejiang' },
+        { name: 'Jiaxing', zh: '嘉兴', prov: 'Zhejiang' },
+        { name: 'Jinhua', zh: '金华', prov: 'Zhejiang' },
+        { name: 'Foshan', zh: '佛山', prov: 'Guangdong' },
+        { name: 'Dongguan', zh: '东莞', prov: 'Guangdong' },
+        { name: 'Zhuhai', zh: '珠海', prov: 'Guangdong' },
+        { name: 'Zhongshan', zh: '中山', prov: 'Guangdong' },
+        { name: 'Huizhou', zh: '惠州', prov: 'Guangdong' },
+        { name: 'Luoyang', zh: '洛阳', prov: 'Henan' },
+        { name: 'Kaifeng', zh: '开封', prov: 'Henan' },
+        { name: 'Mianyang', zh: '绵阳', prov: 'Sichuan' },
+        { name: 'Yibin', zh: '宜宾', prov: 'Sichuan' },
+        { name: 'Leshan', zh: '乐山', prov: 'Sichuan' },
+        { name: 'Ningde', zh: '宁德', prov: 'Fujian' },
+        { name: 'Quanzhou', zh: '泉州', prov: 'Fujian' },
+        { name: 'Zhangzhou', zh: '漳州', prov: 'Fujian' },
+        { name: 'Nanning', zh: '南宁', prov: 'Guangxi' },
+        { name: 'Guilin', zh: '桂林', prov: 'Guangxi' },
+        { name: 'Liuzhou', zh: '柳州', prov: 'Guangxi' },
+        { name: 'Zhuzhou', zh: '株洲', prov: 'Hunan' },
+        { name: 'Xiangtan', zh: '湘潭', prov: 'Hunan' },
+        { name: 'Yueyang', zh: '岳阳', prov: 'Hunan' },
+        { name: 'Hengyang', zh: '衡阳', prov: 'Hunan' },
+        { name: 'Shijiazhuang', zh: '石家庄', prov: 'Hebei' },
+        { name: 'Tangshan', zh: '唐山', prov: 'Hebei' },
+        { name: 'Baoding', zh: '保定', prov: 'Hebei' },
+        { name: 'Handan', zh: '邯郸', prov: 'Hebei' },
+        { name: 'Macau', zh: '澳门', prov: 'Macau' },
+        { name: 'Hong Kong', zh: '香港', prov: 'Hong Kong' },
+        { name: 'Taipei', zh: '台北', prov: 'Taiwan' },
+        { name: 'Kaohsiung', zh: '高雄', prov: 'Taiwan' },
+        { name: 'Taichung', zh: '台中', prov: 'Taiwan' },
+        { name: 'London', zh: 'London', prov: 'UK' },
+        { name: 'New York', zh: 'New York', prov: 'USA' },
+        { name: 'Tokyo', zh: 'Tokyo', prov: 'Japan' },
+        { name: 'Paris', zh: 'Paris', prov: 'France' },
+        { name: 'Singapore', zh: 'Singapore', prov: 'Singapore' },
+        { name: 'Sydney', zh: 'Sydney', prov: 'Australia' },
+        { name: 'Dubai', zh: 'Dubai', prov: 'UAE' },
+        { name: 'Moscow', zh: 'Moscow', prov: 'Russia' },
+        { name: 'Berlin', zh: 'Berlin', prov: 'Germany' },
+        { name: 'Seoul', zh: 'Seoul', prov: 'Korea' },
+        { name: 'Bangkok', zh: 'Bangkok', prov: 'Thailand' },
+        { name: 'Toronto', zh: 'Toronto', prov: 'Canada' },
+        { name: 'Amsterdam', zh: 'Amsterdam', prov: 'Netherlands' },
+        { name: 'Madrid', zh: 'Madrid', prov: 'Spain' },
+        { name: 'Rome', zh: 'Rome', prov: 'Italy' },
+        { name: 'San Francisco', zh: 'San Francisco', prov: 'USA' },
+        { name: 'Los Angeles', zh: 'Los Angeles', prov: 'USA' },
+        { name: 'Chicago', zh: 'Chicago', prov: 'USA' },
+        { name: 'Boston', zh: 'Boston', prov: 'USA' },
+        { name: 'Seattle', zh: 'Seattle', prov: 'USA' },
+        { name: 'Miami', zh: 'Miami', prov: 'USA' },
+        { name: 'Houston', zh: 'Houston', prov: 'USA' },
+        { name: 'Vancouver', zh: 'Vancouver', prov: 'Canada' },
+        { name: 'Melbourne', zh: 'Melbourne', prov: 'Australia' }
+      ];
+
+      // ====== WMO weather code mapping (Open-Meteo) -> label + emoji ======
+      function wmoWeather(code) {
+        var c = parseInt(code, 10);
+        if (c === 0) return { label: 'Clear sky', icon: '\u2600\uFE0F' };
+        if (c === 1) return { label: 'Mainly clear', icon: '\uD83C\uDF24\uFE0F' };
+        if (c === 2) return { label: 'Partly cloudy', icon: '\u26C5' };
+        if (c === 3) return { label: 'Overcast', icon: '\u2601\uFE0F' };
+        if (c === 45 || c === 48) return { label: 'Fog', icon: '\uD83C\uDF2B\uFE0F' };
+        if (c >= 51 && c <= 55) return { label: 'Drizzle', icon: '\uD83C\uDF26\uFE0F' };
+        if (c === 56 || c === 57) return { label: 'Freezing drizzle', icon: '\uD83C\uDF27\uFE0F' };
+        if (c >= 61 && c <= 65) return { label: 'Rain', icon: '\uD83C\uDF27\uFE0F' };
+        if (c === 66 || c === 67) return { label: 'Freezing rain', icon: '\uD83C\uDF27\uFE0F' };
+        if (c >= 71 && c <= 77) return { label: 'Snow', icon: '\uD83C\uDF28\uFE0F' };
+        if (c >= 80 && c <= 82) return { label: 'Rain showers', icon: '\uD83C\uDF26\uFE0F' };
+        if (c === 85 || c === 86) return { label: 'Snow showers', icon: '\uD83C\uDF28\uFE0F' };
+        if (c === 95) return { label: 'Thunderstorm', icon: '\u26C8\uFE0F' };
+        if (c === 96 || c === 99) return { label: 'Thunderstorm with hail', icon: '\u26C8\uFE0F' };
+        return { label: 'Unknown', icon: '\uD83C\uDF21\uFE0F' };
+      }
+
+      // Degrees -> compass direction (N, NE, E, ...)
+      function compassDirection(deg) {
+        var dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+        return dirs[Math.round(deg / 45) % 8];
+      }
+
+      // ====== UI helpers ======
+      function setMessage(text, isError) {
+        weatherMessage.textContent = text || '';
+        weatherMessage.className = 'weather-message' + (isError ? ' is-error' : '');
+      }
+
+      function showLoading() {
+        weatherResult.style.display = 'none';
+        weatherForecast.style.display = 'none';
+        setMessage('Loading…', false);
+        weatherSearchBtn.disabled = true;
+        weatherSearchBtn.textContent = 'Searching\u2026';
+      }
+
+      function resetButton() {
+        weatherSearchBtn.disabled = false;
+        weatherSearchBtn.textContent = 'Search';
+      }
+
+      function renderWeather(place, current, daily) {
+        var wmo = wmoWeather(current.weather_code);
+        var region = place.admin1 || place.country || '';
+        var tempC = current.temperature_2m;
+        weatherIcon.textContent = wmo.icon;
+        weatherTemp.textContent = currentUnit === 'F' ? Math.round(tempC * 9 / 5 + 32) : Math.round(tempC);
+        weatherTempUnit.innerHTML = currentUnit === 'F' ? '&deg;F' : '&deg;C';
+        weatherCityName.textContent = place.name + (region && region !== place.name ? ', ' + region : '');
+        weatherCondition.textContent = wmo.label;
+        weatherHumidity.textContent = 'Humidity: ' + current.relative_humidity_2m + '%';
+        weatherWind.textContent = 'Wind: ' + current.wind_speed_10m + ' km/h ' + compassDirection(current.wind_direction_10m);
+        weatherReportTime.textContent = current.time ? 'Updated ' + current.time.replace('T', ' ') : '';
+        weatherResult.style.display = '';
+        renderForecast(daily);
+      }
+
+      // Render the next 3 days (daily index 0 is today, already shown above)
+      function renderForecast(daily) {
+        forecastCards.innerHTML = '';
+        if (!daily || !daily.time || daily.time.length < 2) {
+          weatherForecast.style.display = 'none';
+          return;
+        }
+        var days = Math.min(4, daily.time.length);
+        for (var i = 1; i < days; i++) {
+          var wmo = wmoWeather(daily.weather_code[i]);
+          var hi = daily.temperature_2m_max[i];
+          var lo = daily.temperature_2m_min[i];
+          if (currentUnit === 'F') {
+            hi = hi * 9 / 5 + 32;
+            lo = lo * 9 / 5 + 32;
+          }
+          var dayName = new Date(daily.time[i] + 'T00:00:00')
+            .toLocaleDateString('en-US', { weekday: 'short' });
+          var card = document.createElement('div');
+          card.className = 'forecast-card';
+          card.innerHTML =
+            '<span class="forecast-day">' + dayName + '</span>' +
+            '<span class="forecast-icon">' + wmo.icon + '</span>' +
+            '<span class="forecast-temps"><span class="hi">' + Math.round(hi) + '\u00B0</span> / ' + Math.round(lo) + '\u00B0</span>';
+          forecastCards.appendChild(card);
+        }
+        weatherForecast.style.display = '';
+      }
+
+      // ====== Error handling ======
+      function handleError(err, notFound) {
+        if (notFound) {
+          setMessage('Couldn\u2019t find that city \u2014 check the spelling.', true);
+        } else {
+          setMessage('Something went wrong. Please try again.', true);
+        }
+      }
+
+      // ====== Search ======
+      // province (optional) disambiguates cities sharing one pinyin name,
+      // e.g. Suzhou (Jiangsu) vs Suzhou (Anhui) -> matches geocoder "admin1".
+      async function searchWeather(city, province) {
+        showLoading();
+        try {
+          // Step 1: geocode the city name
+          var geoUrl = GEOCODE_URL + '?name=' + encodeURIComponent(city) + '&count=10&language=en&format=json';
+          var geoRes = await fetch(geoUrl);
+          var geoData = await geoRes.json();
+          var results = (geoData && geoData.results) || [];
+          if (!results.length) {
+            handleError(null, true);
+            weatherResult.style.display = 'none';
+            return;
+          }
+          var place = results[0];
+          if (province) {
+            var p = province.toLowerCase();
+            for (var i = 0; i < results.length; i++) {
+              if ((results[i].admin1 || '').toLowerCase() === p) {
+                place = results[i];
+                break;
+              }
+            }
+          }
+
+          // Step 2: fetch current weather for the coordinates
+          var wxUrl = FORECAST_URL + '?latitude=' + place.latitude + '&longitude=' + place.longitude +
+            '&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m' +
+            '&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=4&timezone=auto';
+          var wxRes = await fetch(wxUrl);
+          var wxData = await wxRes.json();
+          if (!wxRes.ok || !wxData.current) {
+            handleError(null, false);
+            weatherResult.style.display = 'none';
+            return;
+          }
+          setMessage('', false);
+          lastPlace = place;
+          lastCurrent = wxData.current;
+          lastDaily = wxData.daily;
+          renderWeather(place, wxData.current, wxData.daily);
+        } catch (err) {
+          handleError(err, false);
+          weatherResult.style.display = 'none';
+        } finally {
+          resetButton();
+        }
+      }
+
+      // ====== Autocomplete (shared factory) ======
+      var hideWeatherSuggestions = createCityAutocomplete(weatherCity, weatherSuggestions, CITY_LIST, function (c) {
+        // Pass the province so cities sharing one pinyin name
+        // (e.g. Suzhou 苏州/Jiangsu vs 宿州/Anhui) resolve correctly.
+        searchWeather(c.name, c.prov);
+      });
+
+      // ====== Unit toggle (°C / °F) ======
+      function setUnit(unit) {
+        currentUnit = unit;
+        var isC = unit === 'C';
+        unitC.classList.toggle('is-active', isC);
+        unitF.classList.toggle('is-active', !isC);
+        unitC.setAttribute('aria-pressed', String(isC));
+        unitF.setAttribute('aria-pressed', String(!isC));
+        // Re-render the last result instantly — no new API call needed
+        if (lastPlace && lastCurrent) {
+          renderWeather(lastPlace, lastCurrent, lastDaily);
+        }
+      }
+
+      unitC.addEventListener('click', function () { setUnit('C'); });
+      unitF.addEventListener('click', function () { setUnit('F'); });
+      // ====== Form submit ======
+      weatherForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        hideWeatherSuggestions();
+        var city = weatherCity.value.trim();
+        if (!city) {
+          setMessage('Enter a city first.', true);
+          weatherResult.style.display = 'none';
+          weatherCity.focus();
+          return;
+        }
+        searchWeather(city);
+      });
+    })();
+  </script>
+
+  <script>
+    // ===== World Time App =====
+    // Geocodes cities via Open-Meteo (free, no key, CORS-friendly — works from
+    // any static server or file://), then renders live local times using the
+    // browser's Intl timezone database (automatically DST-aware).
+    (function () {
+      'use strict';
+
+      var GEOCODING_URL = 'https://geocoding-api.open-meteo.com/v1/search';
+
+      var wtForm = document.getElementById('worldtimeForm');
+      var wtCity = document.getElementById('worldtimeCity');
+      var wtAddBtn = document.getElementById('worldtimeSearchBtn');
+      var wtMessage = document.getElementById('worldtimeMessage');
+      var wtEmpty = document.getElementById('worldtimeEmpty');
+      var wtClocks = document.getElementById('worldtimeClocks');
+      var wtSuggestions = document.getElementById('worldtimeSuggestions');
+
+      // The UAPI worldtime database only covers major world cities (smaller
+      // Chinese cities return TIMEZONE_NOT_FOUND), so this app uses its own
+      // curated suggestion list — every entry below was verified against the API.
+      var WORLD_CITY_LIST = [
+        { name: 'Beijing', zh: '北京', prov: 'China' },
+        { name: 'Shanghai', zh: '上海', prov: 'China' },
+        { name: 'Hong Kong', zh: '香港', prov: 'China' },
+        { name: 'Tokyo', zh: '东京', prov: 'Japan' },
+        { name: 'Singapore', zh: '新加坡', prov: 'Singapore' },
+        { name: 'Dubai', zh: '迪拜', prov: 'UAE' },
+        { name: 'London', zh: '伦敦', prov: 'UK' },
+        { name: 'Paris', zh: '巴黎', prov: 'France' },
+        { name: 'Berlin', zh: '柏林', prov: 'Germany' },
+        { name: 'Moscow', zh: '莫斯科', prov: 'Russia' },
+        { name: 'Sydney', zh: '悉尼', prov: 'Australia' },
+        { name: 'Toronto', zh: '多伦多', prov: 'Canada' },
+        { name: 'Chicago', zh: '芝加哥', prov: 'USA' }
+      ];
+
+      var hideWtSuggestions = createCityAutocomplete(wtCity, wtSuggestions, WORLD_CITY_LIST, function (c) {
+        addCity(c.name);
+      });
+
+      // ====== Clock collection (one live card per city) ======
+      var STORAGE_KEY = 'worldtimeCities';
+      var clocks = []; // { name, timeZone, fmt, card, timeEl, dayNightEl, weekdayEl, dateEl, offsetEl }
+
+      function setMessage(text, isError) {
+        wtMessage.textContent = text || '';
+        wtMessage.className = 'weather-message' + (isError ? ' is-error' : '');
+      }
+
+      function setAdding(isAdding) {
+        wtAddBtn.disabled = isAdding;
+        wtAddBtn.textContent = isAdding ? 'Adding\u2026' : 'Add';
+      }
+
+      function updateEmpty() {
+        wtEmpty.style.display = clocks.length ? 'none' : '';
+      }
+
+      // Current UTC offset label for a timezone, e.g. "UTC+9" (updates with DST)
+      function utcOffsetString(timeZone, date) {
+        try {
+          var parts = new Intl.DateTimeFormat('en-US', {
+            timeZone: timeZone,
+            timeZoneName: 'shortOffset'
+          }).formatToParts(date);
+          for (var i = 0; i < parts.length; i++) {
+            if (parts[i].type === 'timeZoneName') {
+              return parts[i].value.replace('GMT', 'UTC');
+            }
+          }
+        } catch (e) { /* fall through */ }
+        return '';
+      }
+
+      // Tick every clock via the Intl timezone database — no API calls needed
+      function tick() {
+        var now = new Date();
+        clocks.forEach(function (c) {
+          var p = {};
+          var parts = c.fmt.formatToParts(now);
+          for (var i = 0; i < parts.length; i++) {
+            p[parts[i].type] = parts[i].value;
+          }
+          var hour = parseInt(p.hour, 10);
+          c.timeEl.textContent = p.hour + ':' + p.minute + ':' + p.second;
+          c.dateEl.textContent = p.year + '-' + p.month + '-' + p.day;
+          c.weekdayEl.textContent = p.weekday;
+          c.offsetEl.textContent = 'UTC offset: ' + utcOffsetString(c.timeZone, now);
+          // 06:00–17:59 = morning/day (sun), 18:00–05:59 = evening/night (moon)
+          var isDay = hour >= 6 && hour < 18;
+          c.dayNightEl.textContent = isDay ? '☀️' : '🌙';
+          c.dayNightEl.setAttribute('aria-label', isDay ? 'Daytime' : 'Nighttime');
+          c.dayNightEl.title = isDay ? 'Daytime' : 'Nighttime';
+        });
+      }
+      setInterval(tick, 1000);
+
+      function saveList() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(clocks.map(function (c) { return c.name; })));
+        } catch (e) { /* storage unavailable — non-fatal */ }
+      }
+
+      function removeCity(name) {
+        for (var i = 0; i < clocks.length; i++) {
+          if (clocks[i].name === name) {
+            clocks[i].card.remove();
+            clocks.splice(i, 1);
+            break;
+          }
+        }
+        saveList();
+        updateEmpty();
+      }
+
+      function displayName(place) {
+        var region = place.admin1 || place.country || '';
+        return place.name + (region && region !== place.name ? ', ' + region : '');
+      }
+
+      function renderClock(place) {
+        var display = displayName(place);
+        var card = document.createElement('div');
+        card.className = 'worldtime-card';
+        card.innerHTML =
+          '<button type="button" class="worldtime-remove">&times;</button>' +
+          '<div class="worldtime-card-top">' +
+            '<span class="worldtime-time"></span>' +
+            '<span class="worldtime-daynight" role="img"></span>' +
+            '<span class="worldtime-weekday"></span>' +
+          '</div>' +
+          '<p class="worldtime-city"><img class="worldtime-flag" alt="" /><span class="worldtime-city-name"></span></p>' +
+          '<div class="weather-details">' +
+            '<span class="weather-detail worldtime-zone"></span>' +
+            '<span class="weather-detail worldtime-offset"></span>' +
+          '</div>' +
+          '<p class="worldtime-date"></p>';
+
+        card.querySelector('.worldtime-city-name').textContent = display;
+        card.querySelector('.worldtime-zone').textContent = 'Timezone: ' + place.timezone;
+        // Flag image (flag emojis don't render on Windows, so use an image instead)
+        var flagImg = card.querySelector('.worldtime-flag');
+        if (place.country_code) {
+          flagImg.src = 'https://flagcdn.com/w40/' + place.country_code.toLowerCase() + '.png';
+          flagImg.alt = place.country || '';
+          flagImg.title = place.country || '';
+        } else {
+          flagImg.style.display = 'none';
+        }
+        var removeBtn = card.querySelector('.worldtime-remove');
+        removeBtn.setAttribute('aria-label', 'Remove ' + display);
+
+        var entry = {
+          name: display,
+          timeZone: place.timezone,
+          fmt: new Intl.DateTimeFormat('en-GB', {
+            timeZone: place.timezone,
+            weekday: 'long',
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hourCycle: 'h23'
+          }),
+          card: card,
+          timeEl: card.querySelector('.worldtime-time'),
+          dayNightEl: card.querySelector('.worldtime-daynight'),
+          weekdayEl: card.querySelector('.worldtime-weekday'),
+          dateEl: card.querySelector('.worldtime-date'),
+          offsetEl: card.querySelector('.worldtime-offset')
+        };
+        removeBtn.addEventListener('click', function () {
+          removeCity(entry.name);
+        });
+
+        wtClocks.appendChild(card);
+        clocks.push(entry);
+      }
+
+      async function addCity(city) {
+        setMessage('', false);
+        setAdding(true);
+        try {
+          var res = await fetch(GEOCODING_URL + '?name=' + encodeURIComponent(city) +
+            '&count=1&language=en&format=json');
+          var data = await res.json();
+          var place = data && data.results && data.results[0];
+          if (!res.ok || !place) {
+            setMessage('Couldn\u2019t find that city \u2014 check the spelling.', true);
+            return;
+          }
+          if (!place.timezone) {
+            setMessage('Something went wrong. Please try again.', true);
+            return;
+          }
+          if (clocks.some(function (c) { return c.name === displayName(place); })) {
+            setMessage('Already showing that city.', true);
+            return;
+          }
+          renderClock(place);
+          tick();
+          saveList();
+          updateEmpty();
+        } catch (err) {
+          setMessage('Something went wrong. Please try again.', true);
+        } finally {
+          setAdding(false);
+        }
+      }
+
+      wtForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        hideWtSuggestions();
+        var city = wtCity.value.trim();
+        if (!city) {
+          setMessage('Enter a city first.', true);
+          wtCity.focus();
+          return;
+        }
+        wtCity.value = '';
+        addCity(city);
+      });
+
+      // Restore previously added cities (sequential to respect the API rate limit)
+      (function restore() {
+        var saved = [];
+        try {
+          saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        } catch (e) { /* ignore corrupt data */ }
+        var chain = Promise.resolve();
+        saved.forEach(function (name) {
+          chain = chain.then(function () {
+            return addCity(name).then(function () {
+              return new Promise(function (r) { setTimeout(r, 400); });
+            });
+          });
+        });
+      })();
+
+      updateEmpty();
+    })();
+  </script>
+</body>
+</html>

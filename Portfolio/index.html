@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home | Bowen Zhang</title>
+  <meta name="description" content="Hi, I'm Bowen Zhang — a friendly software builder who loves warm coffee, clean code, and long walks. Welcome to my little corner of the internet." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ===== Navbar ===== -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand">
+        <span class="brand-dot"></span>
+        Bowen Zhang
+      </a>
+      <button class="nav-toggle" aria-label="Toggle menu" onclick="toggleNav()">&#9776;</button>
+      <ul class="nav-links" id="navLinks">
+        <a href="index.html" class="active">Home</a>
+        <a href="resume.html">Resume</a>
+        <a href="projects.html">Projects</a>
+        <a href="contact.html">Contact Me</a>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ===== Hero ===== -->
+  <header class="hero">
+    <div class="container hero-inner">
+      <div class="headshot-wrap">
+        <img
+          class="headshot"
+          src="images/headshot-cropped.jpg"
+          alt="Headshot of Bowen Zhang"
+        />
+      </div>
+      <div>
+        <span class="tagline">Hello, nice to meet you!</span>
+        <h1>Hi, I'm Bowen Zhang</h1>
+        <p class="intro">
+          I was an English teacher for New Concept English Teaching with two years
+          working experience. Now I am a postgraduate student majoring in Digital
+          Education. My research interests are Gamification, AI-assisted Education, and
+          Website Design for English Language Teaching. If you have the same interest
+          with me, please feel free to chat with me!
+        </p>
+      </div>
+    </div>
+    <div class="container">
+      <div class="hero-actions">
+        <a href="projects.html" class="btn">See my work &rarr;</a>
+        <a href="resume.html" class="btn">Learn more about me &rarr;</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Three Things I Like ===== -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">Three Things I Like</h2>
+      <p class="section-subtitle">Small joys that keep me going every day.</p>
+      <div class="likes-grid">
+        <article class="like-card">
+          <div class="like-icon">&#128062;</div>
+          <h3>Pets</h3>
+          <p>I have two teddy dogs — the brown one is called Jinbao and the grey one is called Diandian. They are very cute! I also like other pets like cats and rabbits.</p>
+        </article>
+        <article class="like-card">
+          <div class="like-icon">&#128269;</div>
+          <h3>Murder Mystery Game</h3>
+          <p>I like Murder Mystery Game very much! I enjoy reasoning about different cases logically as a detective, and experiencing various feelings in different scripts as characters.</p>
+        </article>
+        <article class="like-card">
+          <div class="like-icon">&#129504;</div>
+          <h3>Psychology</h3>
+          <p>I have been reading many books about psychology. I think they can warm my bones and clean my spirit.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div class="container">
+      <p class="fun-fact">
+        <strong>Fun fact about me:</strong> I am a fan of A Dream of Red Mansions and I want to watch the dance drama of it!
+      </p>
+      <p class="footer-meta">&copy; 2026 Bowen Zhang. Built with warmth and rounded corners.</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleNav() {
+      document.getElementById('navLinks').classList.toggle('open');
+    }
+  </script>
+</body>
+</html>
